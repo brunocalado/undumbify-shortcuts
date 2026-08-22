@@ -103,6 +103,4 @@ This module is released under the [GNU General Public License v3](LICENSE).
 
 This module is a fork of [controls-config-conflict-resolver](https://github.com/jacksands/controls-config-conflict-resolver) by Jack Sands. Thank you for the original work that made this possible.
 
-* (donkey)[https://publicdomainvectors.org/en/free-clipart/Outlined-donkey-toy/82208.html]
-
-The module was rebuilt for Foundry VTT v14 rather than carried over. The original code located rows by matching translated label text and guessing at selectors; it now reads the structure ControlsConfig actually renders — `data-action-id` and `data-binding-id` — and formats every combination through Foundry's own `ControlsConfig.humanizeBinding()`, so labels always match the native list. The two windows were rewritten as `ApplicationV2` classes with Handlebars parts, replacing hand-built HTML strings and the layout workarounds that came with them. The bundled colour themes and their hardcoded palettes were dropped in favour of a single design built on Foundry's own theme tokens. Two correctness bugs were fixed along the way: package-locked bindings were being offered as editable, and saving an inline edit wrote core's locked bindings back into the user's keybinding overrides.
+- [donkey](https://publicdomainvectors.org/en/free-clipart/Outlined-donkey-toy/82208.html)
