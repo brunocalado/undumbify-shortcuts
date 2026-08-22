@@ -1,0 +1,59 @@
+<div class="manager">
+    {{#unless persistentStorage}}
+    <aside class="us-note">
+        <i class="fa-solid fa-triangle-exclamation" inert></i>
+        <span>Persistent storage is not active for this module. Restart the world after installing
+        or updating it — saving a profile will fail until then.</span>
+    </aside>
+    {{/unless}}
+
+    <header class="toolbar">
+        <button type="button" data-action="create">
+            <i class="fa-solid fa-plus" inert></i>
+            <span>New from My Current Controls</span>
+        </button>
+        <div class="toolbar-actions">
+            <button type="button" data-action="exportFile" class="inline-control icon fa-solid fa-file-export"
+                    data-tooltip aria-label="Download the whole profiles document as a JSON file"></button>
+            <button type="button" data-action="importFile" class="inline-control icon fa-solid fa-file-import"
+                    data-tooltip aria-label="Merge profiles from an imported JSON file"></button>
+            <span class="us-toolbar-separator"></span>
+            <span class="us-sync-note" data-tooltip
+                  aria-label="Whether activating a profile also reaches every other connected user is decided by the Sync toggle in the Conflict Overview window, not here.">
+                <i class="fa-solid {{#if syncEnabled}}fa-arrows-rotate{{else}}fa-link-slash{{/if}}" inert></i>
+                <span>Sync {{#if syncEnabled}}On{{else}}Off{{/if}}</span>
+            </span>
+        </div>
+    </header>
+
+    <ol class="profiles scrollable">
+        {{#each profileList as |p|}}
+        <li class="profile{{#if p.active}} us-active{{/if}}" data-profile-id="{{p.id}}">
+            <div class="profile-info">
+                <span class="profile-name">
+                    <span>{{p.name}}</span>
+                    {{#if p.active}}<span class="profile-active-tag">Active</span>{{/if}}
+                </span>
+                <span class="profile-meta">{{p.bindingCount}} binding{{#unless (eq p.bindingCount 1)}}s{{/unless}}
+                    &middot; updated {{p.updatedAtDisplay}}</span>
+            </div>
+            <div class="profile-controls">
+                <button type="button" data-action="activate" class="us-activate-button"
+                        data-tooltip aria-label="Apply now, and to everyone else if Sync is on"
+                        {{#if p.active}}disabled{{/if}}>
+                    <i class="fa-solid fa-check" inert></i>
+                    <span>Activate</span>
+                </button>
+                <span class="us-profile-icons">
+                    <button type="button" data-action="save" class="inline-control icon fa-solid fa-floppy-disk"
+                            data-tooltip aria-label="Save my current controls into this profile"></button>
+                    <button type="button" data-action="load" class="inline-control icon fa-solid fa-file-arrow-down"
+                            data-tooltip aria-label="Load onto this client only, without activating it"></button>
+                    <button type="button" data-action="delete" class="inline-control icon fa-solid fa-trash"
+                            data-tooltip aria-label="Delete this profile" {{#if p.isDefault}}disabled{{/if}}></button>
+                </span>
+            </div>
+        </li>
+        {{/each}}
+    </ol>
+</div>

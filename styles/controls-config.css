@@ -1,0 +1,340 @@
+/*!
+ * Undumbify Shortcuts
+ * Copyright (c) 2026 https://github.com/brunocalado
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
+ */
+
+/* Everything injected into Foundry's own Controls Configuration window.
+   The `.undumbify-shortcuts` scope is added to that window at render time, so
+   these rules never reach the rest of the interface. Injected elements carry a
+   `us-` prefix to keep them clear of the core class names in the same subtree. */
+
+.undumbify-shortcuts {
+
+  /* -------------------------------------------- */
+  /*  Context note                                */
+  /* -------------------------------------------- */
+
+  .us-note {
+    display: flex;
+    flex: none;
+    align-items: flex-start;
+    gap: var(--undumbify-shortcuts-gap);
+    margin-bottom: var(--spacer-8, 0.5rem);
+    padding: var(--spacer-8, 0.5rem) var(--spacer-12, 0.75rem);
+    border-left: 2px solid var(--undumbify-shortcuts-accent);
+    border-radius: 0 var(--undumbify-shortcuts-radius) var(--undumbify-shortcuts-radius) 0;
+    background: var(--undumbify-shortcuts-surface);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-11);
+    line-height: 1.5;
+
+    > i { margin-top: 2px; color: var(--undumbify-shortcuts-accent); }
+    > span { flex: 1; }
+  }
+
+  .us-note-dismiss {
+    flex: none;
+    width: auto;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-text-subtle);
+    cursor: pointer;
+
+    &:hover { color: var(--color-text-primary); }
+  }
+
+  /* -------------------------------------------- */
+  /*  Combination search                          */
+  /* -------------------------------------------- */
+
+  .us-combo-search {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacer-4, 0.25rem);
+    flex: none;
+    margin-bottom: var(--spacer-8, 0.5rem);
+    /* A standing accent border announces this as the module's own control — the field is
+       `readonly` and only reacts to keydown, which otherwise reads as disabled. */
+    border: 2px solid var(--undumbify-shortcuts-accent);
+    border-radius: var(--undumbify-shortcuts-radius);
+    padding: var(--spacer-4, 0.25rem);
+    background: var(--undumbify-shortcuts-surface);
+  }
+
+  .us-combo-field {
+    display: flex;
+    align-items: center;
+    gap: var(--spacer-4, 0.25rem);
+    padding: 0 var(--spacer-8, 0.5rem);
+    border-color: transparent;   /* the outer highlight on .us-combo-search is the border now */
+    border-radius: var(--undumbify-shortcuts-radius);
+    background: none;
+
+    &:focus-within {
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--undumbify-shortcuts-accent) 40%, transparent);
+    }
+    > i { flex: none; color: var(--color-text-subtle); }
+  }
+
+  .us-combo-hint {
+    margin: 0;
+    padding: 0 var(--spacer-8, 0.5rem);
+    color: var(--color-text-subtle);
+    font-size: var(--font-size-11);
+  }
+
+  .us-combo-input {
+    flex: 1;
+    min-width: 0;
+    height: var(--input-height);
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-text-primary);
+    font-family: var(--font-monospace);
+    font-size: var(--font-size-12);
+    cursor: pointer;
+
+    &:focus { box-shadow: none; outline: none; }
+  }
+
+  .us-combo-clear {
+    flex: none;
+    width: auto;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-text-subtle);
+    cursor: pointer;
+
+    &:hover { color: var(--color-text-primary); }
+  }
+
+  .us-combo-results {
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid var(--undumbify-shortcuts-border);
+    border-radius: var(--undumbify-shortcuts-radius);
+
+    ul { margin: 0; padding: 0; list-style: none; }
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: var(--spacer-4, 0.25rem);
+      padding: var(--spacer-4, 0.25rem) var(--spacer-8, 0.5rem);
+
+      &:not(:last-child) { border-bottom: 1px solid var(--undumbify-shortcuts-border); }
+      &:hover { background: var(--undumbify-shortcuts-surface); }
+    }
+  }
+
+  .us-result-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+
+    > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  }
+
+  .us-result-goto {
+    flex: none;
+    width: auto;
+    padding: 0 var(--spacer-4, 0.25rem);
+    border: none;
+    background: none;
+    color: var(--color-text-subtle);
+    cursor: pointer;
+
+    &:hover { color: var(--undumbify-shortcuts-accent); }
+  }
+
+  .us-combo-empty {
+    margin: 0;
+    padding: var(--spacer-8, 0.5rem);
+    color: var(--color-text-subtle);
+    font-size: var(--font-size-11);
+  }
+
+  /* -------------------------------------------- */
+  /*  Filter highlighting                         */
+  /* -------------------------------------------- */
+
+  .form-group.us-muted { opacity: 0.35; }
+
+  .form-group.us-match {
+    border-left: 2px solid var(--undumbify-shortcuts-accent);
+    padding-left: var(--spacer-4, 0.25rem);
+  }
+
+  /* Brief pulse after jumping to an action, so the eye lands on the right row. */
+  .form-group.us-flash { animation: us-flash 1.6s ease-out; }
+
+  /* Standing highlight for a row holding at least one conflicting binding — Foundry's own ⚠
+     sits on the individual binding cap and is easy to miss while scanning; a tinted background
+     on the whole row is not. */
+  .form-group.us-has-conflict {
+    /* Padding so the label and controls aren't flush against the tint's edge, offset by a
+       matching negative inline margin so the box bleeds into the row's own gutter instead of
+       shifting the text out of alignment with every other row in the list. */
+    padding: var(--spacer-4, 0.25rem) var(--spacer-8, 0.5rem);
+    margin-inline: calc(var(--spacer-8, 0.5rem) * -1);
+    border-radius: var(--undumbify-shortcuts-radius);
+    background: color-mix(in srgb, var(--color-level-warning) 12%, transparent);
+  }
+
+  /* -------------------------------------------- */
+  /*  Conflict trigger and expansion              */
+  /* -------------------------------------------- */
+
+  .us-trigger {
+    transition: transform 0.15s ease, color 0.15s ease;
+
+    &[aria-expanded="true"] {
+      color: var(--undumbify-shortcuts-accent);
+      transform: rotate(180deg);
+    }
+  }
+
+  li.us-expansion {
+    margin: var(--spacer-4, 0.25rem) 0;
+    padding: var(--spacer-8, 0.5rem);
+    border-left: 2px solid var(--undumbify-shortcuts-accent);
+    border-radius: 0 var(--undumbify-shortcuts-radius) var(--undumbify-shortcuts-radius) 0;
+    background: var(--undumbify-shortcuts-surface);
+    list-style: none;
+  }
+
+  .us-expansion-heading {
+    margin: 0 0 var(--spacer-4, 0.25rem);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-11);
+  }
+
+  .us-conflict-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .us-conflict {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacer-8, 0.5rem);
+    padding: var(--spacer-4, 0.25rem) 0;
+
+    &:not(:last-child) { border-bottom: 1px solid var(--undumbify-shortcuts-border); }
+    /* The feedback line is a third child and has to sit under the other two. */
+    &.us-editing { row-gap: var(--spacer-4, 0.25rem); }
+  }
+
+  .us-conflict-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+
+    > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  }
+
+  .us-conflict-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacer-4, 0.25rem);
+    flex: none;
+  }
+
+  .us-conflict .us-feedback { flex-basis: 100%; }
+
+  /* -------------------------------------------- */
+  /*  Inline rebinding                            */
+  /* -------------------------------------------- */
+
+  .us-editor {
+    display: flex;
+    align-items: center;
+    gap: var(--spacer-4, 0.25rem);
+  }
+
+  .us-key-input {
+    width: 11rem;
+    height: var(--input-height);
+    font-family: var(--font-monospace);
+    font-size: var(--font-size-12);
+    cursor: pointer;
+  }
+
+  /* Feedback attached to Foundry's own binding input, as its own list row so the
+     editing row's flex layout stays intact. */
+  li.us-inline-feedback {
+    padding: 0 0 var(--spacer-4, 0.25rem);
+    list-style: none;
+  }
+
+  /* -------------------------------------------- */
+  /*  Sidebar conflict badge and category counts  */
+  /* -------------------------------------------- */
+
+  .us-badge {
+    flex: none;
+    /* .flexcol has no gap of its own, so the sidebar's direct children (search, this badge, the
+       combo field) would otherwise touch with zero space between them. */
+    margin-top: var(--spacer-8, 0.5rem);
+    padding: 0 0 var(--spacer-8, 0.5rem);
+    border-top: none;   /* was a footer separator; it sits under the search now, not above one */
+  }
+
+  .us-badge-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacer-8, 0.5rem);
+    width: 100%;
+    margin: 0;
+    font-size: var(--font-size-12);
+    color: var(--color-level-warning);
+
+    > i { color: inherit; }
+  }
+
+  /* Same button chrome as the warning state — only the colour changes, so "no conflicts" reads
+     as the same kind of control rather than a plain line of text. */
+  .us-badge-clear { color: var(--color-level-success); }
+
+  /* Core's own [data-tab] button is not a flex container, so a bare margin-inline-start: auto
+     on the injected badge would do nothing — make the row flex ourselves, scoped to this
+     window only, rather than touching core's stylesheet. */
+  nav.tabs.vertical [data-tab] {
+    display: flex;
+    align-items: center;
+    gap: var(--spacer-4, 0.25rem);
+  }
+
+  /* Sits next to core's own `[42]` count. */
+  .us-cat-conflicts {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex: none;
+    margin-inline-start: auto;
+    /* Matches Foundry's own ⚠ (--color-level-warning) rather than the error token — on the
+       theme this ships against, the error red reads as a dull maroon with poor contrast against
+       the dark sidebar, where the warning orange is the one that's actually legible at a glance. */
+    color: var(--color-level-warning);
+    font-size: var(--font-size-11);
+
+    > i { font-size: 0.9em; }
+    > span { font-variant-numeric: tabular-nums; }
+  }
+}
+
+@keyframes us-flash {
+  from { background: color-mix(in srgb, var(--color-warm-1) 35%, transparent); }
+  to { background: transparent; }
+}

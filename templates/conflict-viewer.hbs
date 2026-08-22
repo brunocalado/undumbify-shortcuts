@@ -1,0 +1,88 @@
+<div class="viewer">
+    <header class="toolbar">
+        {{#if count}}
+        <span class="summary conflicts">
+            <i class="fa-solid fa-triangle-exclamation" inert></i>
+            <span>{{count}} Conflict{{#unless (eq count 1)}}s{{/unless}}</span>
+        </span>
+        {{else}}
+        <span class="summary clear">
+            <i class="fa-solid fa-circle-check" inert></i>
+            <span>No Conflicts</span>
+        </span>
+        {{/if}}
+
+        <div class="toolbar-actions">
+            <div class="us-sync-group">
+                {{#if canSync}}
+                <label class="us-sync-toggle">
+                    <input type="checkbox" name="sync" {{checked syncEnabled}}>
+                    <span class="us-toggle-track"><span class="us-toggle-thumb"></span></span>
+                </label>
+                <span class="us-sync-label">Sync</span>
+                <i class="fa-solid fa-circle-question us-sync-help" data-tooltip
+                   aria-label="While on, every connected user's keybindings mirror yours live — actions you have never customized are left as each player set them, and this updates automatically on every edit, not just resolutions made here."></i>
+                {{else}}
+                <i class="fa-solid {{#if syncEnabled}}fa-arrows-rotate{{else}}fa-link-slash{{/if}}" inert></i>
+                <span class="us-sync-label">Sync {{#if syncEnabled}}On{{else}}Off{{/if}}</span>
+                <i class="fa-solid fa-circle-question us-sync-help" data-tooltip
+                   aria-label="Controlled by the GM. While on, your keybindings mirror the GM's automatically for any action the GM has customized."></i>
+                {{/if}}
+            </div>
+            <span class="us-toolbar-separator"></span>
+            <button type="button" data-action="openControls">
+                <i class="fa-solid fa-gamepad" inert></i>
+                <span>Controls Configuration</span>
+            </button>
+        </div>
+    </header>
+
+    {{#if count}}
+    <ol class="conflicts scrollable">
+        {{#each groups as |group|}}
+        <li class="conflict-group" data-combo="{{group.combo}}">
+            <header>
+                <kbd class="us-combo">{{group.comboDisplay}}</kbd>
+                <span class="group-count">{{group.actions.length}} actions</span>
+            </header>
+            <ul class="claims">
+                {{#each group.actions as |action|}}
+                <li class="claim" data-action-id="{{action.actionId}}" data-index="{{action.index}}">
+                    <div class="claim-info">
+                        <span class="action-label" data-tooltip aria-label="{{action.actionId}}">{{action.label}}</span>
+                        <span class="action-package">{{action.packageTitle}}</span>
+                    </div>
+                    <div class="claim-controls">
+                        <button type="button" data-action="keepThis" data-tooltip
+                                aria-label="Keep this one, removing the other claims on this combination">
+                            <i class="fa-solid fa-crown" inert></i>
+                        </button>
+                        {{#if action.editable}}
+                        <button type="button" data-action="rebindClaim" data-tooltip aria-label="Rebind it here">
+                            <i class="fa-solid fa-pen-to-square" inert></i>
+                        </button>
+                        <button type="button" data-action="clearClaim" data-tooltip aria-label="Remove this binding">
+                            <i class="fa-solid fa-trash" inert></i>
+                        </button>
+                        {{else}}
+                        <span class="us-locked" data-tooltip aria-label="This binding is locked by its package">
+                            <i class="fa-solid fa-lock" inert></i>
+                        </span>
+                        {{/if}}
+                        <button type="button" data-action="gotoClaim" data-tooltip aria-label="Go to this action">
+                            <i class="fa-solid fa-arrow-right" inert></i>
+                        </button>
+                    </div>
+                </li>
+                {{/each}}
+            </ul>
+        </li>
+        {{/each}}
+    </ol>
+    {{else}}
+    <div class="empty">
+        <i class="fa-solid fa-circle-check" inert></i>
+        <p>Every keybinding has a combination to itself.</p>
+    </div>
+    {{/if}}
+</div>

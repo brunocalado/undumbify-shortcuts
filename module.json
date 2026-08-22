@@ -1,0 +1,54 @@
+{
+  "title": "Undumbify Shortcuts",
+  "id": "undumbify-shortcuts",
+  "description": "Names the packages behind every keybinding conflict in the Controls Configuration window, and lets you resolve them without leaving the row.",
+  "version": "0.0.1",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14",
+    "maximum": "14"
+  },
+  "authors": [
+    {
+      "name": "Mestre Digital",
+      "url": "http://youtube.com/@mestredigital",
+      "flags": {}
+    }
+  ],
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
+    {
+      "src": "styles/base.css"
+    },
+    {
+      "src": "styles/controls-config.css"
+    },
+    {
+      "src": "styles/conflict-viewer.css"
+    },
+    {
+      "src": "styles/profile-manager.css"
+    },
+    {
+      "src": "styles/instructions-viewer.css"
+    }
+  ],
+  "persistentStorage": true,
+  "url": "https://github.com/brunocalado/undumbify-shortcuts",
+  "manifest": "https://raw.githubusercontent.com/brunocalado/undumbify-shortcuts/main/module.json",
+  "download": "https://codeload.github.com/brunocalado/undumbify-shortcuts/zip/main",
+
+  "media": [
+    {
+      "type": "setup",
+      "url": "modules/undumbify-shortcuts/docs/thumbnail.webp",
+      "thumbnail": "modules/undumbify-shortcuts/docs/thumbnail.webp",
+      "loop": false,
+      "flags": {}
+    }
+  ],  
+  
+  "flags": {}
+}

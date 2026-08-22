@@ -1,0 +1,88 @@
+/*!
+ * Undumbify Shortcuts
+ * Copyright (c) 2026 https://github.com/brunocalado
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
+ */
+
+/* Module-wide custom properties and the pieces shared by more than one surface.
+   Everything this module styles is nested under `.undumbify-shortcuts`, which is
+   applied through DEFAULT_OPTIONS.classes on its own windows and added to
+   Foundry's Controls Configuration window at render time.
+
+   Colours are drawn from Foundry's own tokens rather than fixed values, so the
+   module follows whichever theme the user has chosen instead of fighting it. */
+
+.undumbify-shortcuts {
+  --undumbify-shortcuts-accent: var(--color-warm-1);
+  --undumbify-shortcuts-surface: rgba(0, 0, 0, 0.16);
+  --undumbify-shortcuts-border: var(--color-border, var(--color-cool-4));
+  --undumbify-shortcuts-radius: 4px;
+  --undumbify-shortcuts-gap: var(--spacer-8, 0.5rem);
+  /* A discreet highlight for a hoverable row — light enough to read against either the plain
+     window background or the darker --undumbify-shortcuts-surface a card already sits on. */
+  --undumbify-shortcuts-hover: rgba(255, 255, 255, 0.06);
+
+  /* A key combination rendered as a key cap. Used in both windows and in the
+     panels injected into Controls Configuration.
+
+     Deliberately class-based: a bare `kbd` rule here would also repaint the key
+     caps Foundry renders in its own binding rows, since the scope class sits on
+     the Controls Configuration window itself. */
+  .us-combo {
+    display: inline-block;
+    padding: 1px 6px;
+    border: 1px solid var(--undumbify-shortcuts-border);
+    border-radius: var(--undumbify-shortcuts-radius);
+    background: var(--undumbify-shortcuts-surface);
+    color: var(--color-text-primary);
+    font-family: var(--font-monospace);
+    font-size: var(--font-size-11);
+    white-space: nowrap;
+  }
+
+  /* The package that registered an action — the detail Foundry's own list omits
+     and the reason most of this module exists. */
+  .action-package,
+  .us-conflict-package,
+  .us-result-package {
+    color: var(--undumbify-shortcuts-accent);
+    font-size: var(--font-size-11);
+  }
+
+  .action-label,
+  .us-conflict-label,
+  .us-result-label {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-13);
+  }
+
+  /* Shown in place of the resolve controls when a package has locked a binding — used both in
+     Controls Configuration's expansion panel and the Conflict Overview's claim rows. */
+  .us-locked { color: var(--color-text-subtle); }
+
+  /* A vertical divider between unrelated clusters of toolbar controls — used in both the
+     Conflict Overview toolbar and the Control Profiles toolbar. */
+  .us-toolbar-separator {
+    flex: none;
+    align-self: stretch;
+    width: 1px;
+    margin: var(--spacer-4, 0.25rem) 0;
+    background: var(--undumbify-shortcuts-border);
+  }
+
+  /* Verdict on a candidate combination, shown while rebinding. */
+  .us-feedback {
+    margin: 0;
+    padding: var(--spacer-4, 0.25rem) var(--spacer-8, 0.5rem);
+    border-left: 2px solid currentcolor;
+    border-radius: 0 var(--undumbify-shortcuts-radius) var(--undumbify-shortcuts-radius) 0;
+    font-size: var(--font-size-11);
+    line-height: 1.4;
+
+    &.us-feedback-conflict { color: var(--color-level-warning); }
+    &.us-feedback-error { color: var(--color-level-error); }
+    &.us-feedback-clear { color: var(--color-level-success); }
+  }
+}

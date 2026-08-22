@@ -1,0 +1,122 @@
+/*!
+ * Undumbify Shortcuts
+ * Copyright (c) 2026 https://github.com/brunocalado
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
+ */
+
+/* The instructions window, rendering the module's shipped markdown document. */
+
+.undumbify-shortcuts.instructions {
+
+  .window-content { padding: 0; }
+
+  .instructions-body {
+    /* flex:1 + min-height:0, mirroring the scrollable list in the other two windows in this
+       module — the item stays bounded to window-content's height instead of growing to fit
+       its content, which is what actually makes it a scroll container at all. */
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: var(--spacer-16, 1rem) var(--spacer-16, 1rem) var(--spacer-16, 1rem);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-13);
+    line-height: 1.6;
+
+    /* Chromium/Electron defaults to an OS-driven overlay scrollbar that only appears on hover
+       (Windows' "auto-hide scrollbars" setting) — invisible until the user happens to hover
+       right over the track, easy to miss entirely on a laptop trackpad with no scroll wheel to
+       reveal it by accident. Styled explicitly so it is always there to see and grab. */
+    scrollbar-width: thin;
+    scrollbar-color: var(--undumbify-shortcuts-border) transparent;
+
+    &::-webkit-scrollbar { width: 10px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+
+    &::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      border-radius: var(--undumbify-shortcuts-radius);
+      background-color: var(--undumbify-shortcuts-border);
+      background-clip: padding-box;
+
+      &:hover { background-color: var(--undumbify-shortcuts-accent); }
+    }
+
+    h1, h2, h3 {
+      color: var(--color-text-primary);
+      border: none;
+    }
+
+    h1 {
+      margin: 0 0 var(--spacer-8, 0.5rem);
+      padding-bottom: var(--spacer-4, 0.25rem);
+      border-bottom: 1px solid var(--undumbify-shortcuts-accent);
+      font-size: var(--font-size-20);
+    }
+
+    h2 {
+      margin: var(--spacer-16, 1rem) 0 var(--spacer-4, 0.25rem);
+      font-size: var(--font-size-16);
+    }
+
+    h3 {
+      margin: var(--spacer-12, 0.75rem) 0 var(--spacer-4, 0.25rem);
+      font-size: var(--font-size-14);
+    }
+
+    p { margin: 0 0 var(--spacer-8, 0.5rem); }
+
+    strong { color: var(--color-text-primary); }
+
+    ul, ol { margin: 0 0 var(--spacer-8, 0.5rem); padding-left: var(--spacer-16, 1rem); }
+
+    li { margin: 2px 0; }
+
+    hr {
+      margin: var(--spacer-16, 1rem) 0;
+      border: none;
+      border-top: 1px solid var(--undumbify-shortcuts-border);
+    }
+
+    blockquote {
+      margin: 0 0 var(--spacer-8, 0.5rem);
+      padding: var(--spacer-4, 0.25rem) var(--spacer-12, 0.75rem);
+      border-left: 2px solid var(--undumbify-shortcuts-accent);
+      background: var(--undumbify-shortcuts-surface);
+      color: var(--color-text-secondary);
+    }
+
+    code {
+      padding: 1px 4px;
+      border-radius: var(--undumbify-shortcuts-radius);
+      background: var(--undumbify-shortcuts-surface);
+      font-family: var(--font-monospace);
+      font-size: var(--font-size-11);
+    }
+
+    pre {
+      margin: 0 0 var(--spacer-8, 0.5rem);
+      padding: var(--spacer-8, 0.5rem);
+      overflow-x: auto;
+      border: 1px solid var(--undumbify-shortcuts-border);
+      border-radius: var(--undumbify-shortcuts-radius);
+
+      code { padding: 0; background: none; }
+    }
+
+    table {
+      width: 100%;
+      margin: 0 0 var(--spacer-8, 0.5rem);
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: var(--spacer-4, 0.25rem) var(--spacer-8, 0.5rem);
+      border: 1px solid var(--undumbify-shortcuts-border);
+      text-align: left;
+    }
+
+    th { color: var(--color-text-primary); }
+  }
+}

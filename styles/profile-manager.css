@@ -1,0 +1,168 @@
+/*!
+ * Undumbify Shortcuts
+ * Copyright (c) 2026 https://github.com/brunocalado
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
+ */
+
+/* The GM-only profile CRUD window. */
+
+.undumbify-shortcuts.profile-manager {
+
+  .window-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacer-8, 0.5rem);
+  }
+
+  .manager {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacer-8, 0.5rem);
+    height: 100%;
+    min-height: 0;
+  }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--undumbify-shortcuts-gap);
+    flex: none;
+    padding-bottom: var(--spacer-8, 0.5rem);
+    border-bottom: 1px solid var(--undumbify-shortcuts-border);
+  }
+
+  .toolbar button {
+    flex: none;
+    width: auto;
+    white-space: nowrap;
+  }
+
+  .toolbar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--undumbify-shortcuts-gap);
+  }
+
+  /* A read-only reminder, not a control: whether Activate reaches other clients is decided by
+     the Sync toggle in the Conflict Overview, not in this window. */
+  .us-sync-note {
+    display: flex;
+    align-items: center;
+    gap: var(--spacer-4, 0.25rem);
+    flex: none;
+    width: auto;
+    padding: var(--spacer-4, 0.25rem) var(--spacer-8, 0.5rem);
+    border: 1px solid var(--undumbify-shortcuts-border);
+    border-radius: var(--undumbify-shortcuts-radius);
+    background: var(--undumbify-shortcuts-surface);
+    color: var(--color-text-subtle);
+    font-size: var(--font-size-11);
+    cursor: help;
+
+    > i { color: inherit; }
+  }
+
+  .profiles {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacer-4, 0.25rem);
+  }
+
+  .profile {
+    display: flex;
+    align-items: center;
+    gap: var(--undumbify-shortcuts-gap);
+    padding: var(--spacer-8, 0.5rem);
+    border: 1px solid var(--undumbify-shortcuts-border);
+    border-radius: var(--undumbify-shortcuts-radius);
+    background: var(--undumbify-shortcuts-surface);
+
+    /* The one profile actually in effect needs to read as such at a glance, not just via the
+       small text tag next to its name. */
+    &.us-active {
+      border-color: var(--undumbify-shortcuts-accent);
+      border-inline-start-width: 3px;
+      background: color-mix(in srgb, var(--undumbify-shortcuts-accent) 10%, var(--undumbify-shortcuts-surface));
+    }
+  }
+
+  .profile-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .profile-name {
+    display: flex;
+    align-items: center;
+    gap: var(--spacer-4, 0.25rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-13);
+  }
+
+  .profile-active-tag {
+    flex: none;
+    padding: 0 var(--spacer-4, 0.25rem);
+    border-radius: var(--undumbify-shortcuts-radius);
+    background: var(--undumbify-shortcuts-accent);
+    color: var(--color-dark-1, #191813);
+    font-size: var(--font-size-10);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .profile-meta {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text-subtle);
+    font-size: var(--font-size-11);
+  }
+
+  .profile-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacer-8, 0.5rem);
+    flex: none;
+
+    button:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+  }
+
+  /* A labeled button, not an icon — this is the one action on the row with real consequences
+     (applies now, and to everyone else if Sync is on), so it reads as words rather than
+     something to decode from a glyph. */
+  .us-activate-button {
+    display: flex;
+    align-items: center;
+    gap: var(--spacer-4, 0.25rem);
+    flex: none;
+    width: auto;
+    white-space: nowrap;
+    font-size: var(--font-size-11);
+  }
+
+  .us-profile-icons {
+    display: flex;
+    align-items: center;
+    gap: var(--spacer-4, 0.25rem);
+    flex: none;
+  }
+}
