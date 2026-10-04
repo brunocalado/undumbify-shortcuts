@@ -24,7 +24,9 @@ Undumbify Shortcuts fills in the missing half. Every conflict tells you the **ac
 - **Search by combination** — click the sidebar field and press any combination. Every action bound to it is listed, matching rows are highlighted, and the rest are dimmed.
 - **Jump to any action** — one click switches to the right category, scrolls to the action, and flashes it.
 - **Per-category conflict counts** — the sidebar nav shows how many actions in each category need attention, and a running total opens the full resolver.
-- **Conflict Overview & resolver** — a standalone window listing every contested combination, who is competing for it, and a **"Keep this one"** button that clears every other claim in a single confirmed step. Speaks up only for new conflicts: the GM gets the overview, a player only a notification for what the GM's fixes cannot reach, and the GM can mark a deliberate overlap as **Can Coexist** for everyone.
+- **Conflict Overview & resolver** — a standalone window listing every contested key press, who is competing for it **in the order Foundry runs them**, and a **"Keep this one"** button that clears every other claim in a single confirmed step.
+- **Can Coexist** — many modules share a key on purpose, each acting in its own situation. The GM marks those once and they stop counting and alerting for everyone. If another action later joins that key, the conflict comes back on its own.
+- **Quiet alerts** — at world start only *new* conflicts speak up: the GM gets the overview, a player only a notification for what the GM's fixes cannot reach.
 - **Live sync, on by default** — while enabled, every connected client mirrors whichever bindings the GM has explicitly customized, automatically, on every edit — actions only a player has customized are left alone, so nothing is silently overwritten.
 - **Control profiles** — save named keybinding sets to the module's own persistent storage, so enabling the module in *any* world can bring your controls with it. Activating one applies it immediately, and reaches every connected user too if Sync is on.
 - **Native look** — built entirely on Foundry's own design tokens, so it follows your chosen theme instead of fighting it.
@@ -53,7 +55,7 @@ Undumbify Shortcuts fills in the missing half. Every conflict tells you the **ac
 
 ### The Conflict Overview
 
-Click the badge under the sidebar search field (or the window's header control) to open the **Conflict Overview** — every contested combination as its own group, with **Keep this one**, **Rebind**, **Clear**, and **Go to it** for each claim. Its toolbar carries a **Sync** switch (on by default): while on, every action the GM customizes — here or anywhere else — mirrors onto every connected client automatically, with no button to click. A GM sees it as a toggle; everyone else sees a read-only status. It is also reachable from **Game Settings** → **Module Settings** → **Undumbify Shortcuts**.
+Click the badge under the sidebar search field (or the window's header control) to open the **Conflict Overview** — every contested key press as its own group, with **Keep this one**, **Rebind**, **Clear**, and **Go to it** for each claim. The actions are numbered in the order Foundry runs them, and each group is tagged **Foundry** when it involves a core control — like Quickdraw and core's Descend both on **Q** — or **Packages** when only modules or the system are involved. The GM can mark a group as **Can Coexist**; it moves to a collapsed **Ignored** section for everyone, and **Restore** brings it back. Its toolbar carries a **Sync** switch (on by default): while on, every action the GM customizes — here or anywhere else — mirrors onto every connected client automatically, with no button to click. A GM sees it as a toggle; everyone else sees a read-only status. It is also reachable from **Game Settings** → **Module Settings** → **Undumbify Shortcuts**.
 
 ![The Conflict Overview listing several contested combinations, each with its competing actions](docs/keybinding-conflicts-view.webp)
 
@@ -69,7 +71,7 @@ Click the badge under the sidebar search field (or the window's header control) 
 
 A key press that two or more actions registered through `game.keybindings.register()` would respond to, judged **the way Foundry dispatches it**: reserved modifiers count (an action on Shift + Q collides with core's Descend on Q), GM-only actions are left out on a player's client, and Foundry's own locked bindings (Escape, Delete, Ctrl + A/Z/X/C/V) are left out entirely. The overview shows the actions in the order Foundry runs them.
 
-> **A shared combination is not automatically a bug.** Keybindings only fire in the context they were registered for — on the canvas, inside a text editor, during combat. Two actions can share a combination and never actually collide. The module says so in the window itself, and the note can be dismissed for good.
+> **A shared key is not automatically a bug.** On a key press Foundry runs each action in turn and stops when one of them claims the key. So either both fire, only the first one ever fires, or each acts in its own situation — on the canvas, with a token selected, while its window is open. Only the last case is harmless, and only you can tell which one it is. That is what **Can Coexist** is for.
 
 > Foundry's own *"Potentially conflicts with Copy"* warning also covers browser shortcuts such as `Ctrl+C`. That is a separate system; this module reports Foundry-to-Foundry collisions only.
 
@@ -77,15 +79,13 @@ A key press that two or more actions registered through `game.keybindings.regist
 
 ## 📦 Installation
 
-1. Open Foundry VTT and go to **Add-on Modules**.
-2. Click **Install Module**.
-3. Paste the following manifest URL in the **Manifest URL** field at the bottom:
+Install via the Foundry VTT Module browser — search for **Undumbify Shortcuts** — or paste this manifest URL into the **Manifest URL** field at the bottom of **Install Module**:
 
 ```
-https://raw.githubusercontent.com/brunocalado/undumbify-shortcuts/main/module.json
+https://github.com/brunocalado/undumbify-shortcuts/releases/latest/download/module.json
 ```
 
-4. Click **Install** and then enable the module in your world.
+Then enable the module in your world. What changed in each version is in the [changelog](CHANGELOG.md).
 
 ---
 

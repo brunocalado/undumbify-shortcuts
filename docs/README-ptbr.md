@@ -22,7 +22,9 @@ O Undumbify Shortcuts preenche essa lacuna. Todo conflito mostra a **ação e o 
 - **Busca por combinação** — clique no campo da barra lateral e pressione qualquer combinação. Toda ação vinculada a ela é listada, as linhas correspondentes ficam destacadas e as demais ficam esmaecidas.
 - **Vá direto para qualquer ação** — um clique muda para a categoria certa, rola até a ação e a destaca com um flash.
 - **Contagem de conflitos por categoria** — a barra de navegação lateral mostra quantas ações em cada categoria precisam de atenção, e um total geral abre o resolvedor completo.
-- **Visão Geral de Conflitos & resolvedor** — uma janela independente listando cada combinação disputada, quem está competindo por ela, e um botão **"Manter esta"** que remove todas as outras reivindicações em uma única etapa confirmada. Só avisa sobre conflitos novos: o mestre recebe a visão geral, o jogador só uma notificação para o que as correções do mestre não alcançam, e o mestre pode marcar uma sobreposição proposital como **Can Coexist** para todos.
+- **Visão Geral de Conflitos & resolvedor** — uma janela independente listando cada tecla disputada, quem está competindo por ela **na ordem em que o Foundry as executa**, e um botão **"Manter esta"** que remove todas as outras reivindicações em uma única etapa confirmada.
+- **Can Coexist** — muitos módulos dividem uma tecla de propósito, cada um agindo na sua situação. O mestre marca esses casos uma vez e eles deixam de contar e de alertar para todos. Se outra ação passar a usar aquela tecla, o conflito volta sozinho.
+- **Alertas discretos** — ao iniciar o mundo, só conflitos *novos* avisam: o mestre recebe a visão geral, o jogador só uma notificação para o que as correções do mestre não alcançam.
 - **Sincronização ao vivo, ligada por padrão** — enquanto ativa, todo cliente conectado espelha os atalhos que o mestre customizou explicitamente, automaticamente, a cada edição — ações que só um jogador customizou permanecem intocadas, então nada é sobrescrito silenciosamente.
 - **Perfis de controles** — salve conjuntos de atalhos nomeados no armazenamento persistente do próprio módulo, para que ativar o módulo em *qualquer* mundo possa trazer seus controles junto. Ativar um perfil o aplica imediatamente, e alcança todo usuário conectado também, se a Sincronização estiver ligada.
 - **Visual nativo** — construído inteiramente sobre os tokens de design do próprio Foundry, então segue o tema escolhido em vez de brigar com ele.
@@ -51,7 +53,7 @@ O Undumbify Shortcuts preenche essa lacuna. Todo conflito mostra a **ação e o 
 
 ### A Visão Geral de Conflitos
 
-Clique no indicador abaixo do campo de busca da barra lateral (ou no controle do cabeçalho da janela) para abrir a **Visão Geral de Conflitos** — cada combinação disputada como seu próprio grupo, com **Manter esta**, **Rebindar**, **Limpar** e **Ir até ela** para cada reivindicação. Sua barra de ferramentas traz um interruptor de **Sincronização** (ligado por padrão): enquanto ligado, toda ação que o mestre customiza — aqui ou em qualquer outro lugar — se espelha em todo cliente conectado automaticamente, sem nenhum botão para clicar. O mestre vê como um interruptor; todos os demais veem um status somente leitura. Também é acessível por **Configurações do Jogo** → **Configurações de Módulos** → **Undumbify Shortcuts**.
+Clique no indicador abaixo do campo de busca da barra lateral (ou no controle do cabeçalho da janela) para abrir a **Visão Geral de Conflitos** — cada tecla disputada como seu próprio grupo, com **Manter esta**, **Rebindar**, **Limpar** e **Ir até ela** para cada reivindicação. As ações são numeradas na ordem em que o Foundry as executa, e cada grupo recebe a etiqueta **Foundry** quando envolve um controle do core — como o Quickdraw e o Descer do core, ambos no **Q** — ou **Packages** quando só módulos ou o sistema estão envolvidos. O mestre pode marcar um grupo como **Can Coexist**; ele vai para uma seção recolhida **Ignored** para todos, e **Restore** o traz de volta. Sua barra de ferramentas traz um interruptor de **Sincronização** (ligado por padrão): enquanto ligado, toda ação que o mestre customiza — aqui ou em qualquer outro lugar — se espelha em todo cliente conectado automaticamente, sem nenhum botão para clicar. O mestre vê como um interruptor; todos os demais veem um status somente leitura. Também é acessível por **Configurações do Jogo** → **Configurações de Módulos** → **Undumbify Shortcuts**.
 
 ![A Visão Geral de Conflitos listando várias combinações disputadas, cada uma com suas ações concorrentes](keybinding-conflicts-view.webp)
 
@@ -67,7 +69,7 @@ Clique no indicador abaixo do campo de busca da barra lateral (ou no controle do
 
 Uma tecla à qual duas ou mais ações registradas através de `game.keybindings.register()` responderiam, avaliada **do jeito que o Foundry dispara os atalhos**: modificadores reservados contam (uma ação em Shift + Q colide com o Descer do core no Q), ações só do mestre ficam de fora no cliente do jogador, e os atalhos travados do próprio Foundry (Escape, Delete, Ctrl + A/Z/X/C/V) ficam de fora sempre. A visão geral mostra as ações na ordem em que o Foundry as executa.
 
-> **Uma combinação compartilhada não é automaticamente um bug.** Atalhos só disparam no contexto para o qual foram registrados — no canvas, dentro de um editor de texto, durante o combate. Duas ações podem compartilhar uma combinação e nunca colidir na prática. O módulo avisa isso dentro da própria janela, e o aviso pode ser dispensado permanentemente.
+> **Uma tecla compartilhada não é automaticamente um bug.** Ao pressionar a tecla, o Foundry roda cada ação em sequência e para quando uma delas "toma" a tecla. Então ou as duas disparam, ou só a primeira dispara sempre, ou cada uma age na sua situação — no canvas, com um token selecionado, com a própria janela aberta. Só o último caso é inofensivo, e só você sabe qual deles é. É para isso que serve o **Can Coexist**.
 
 > O próprio aviso *"Possível conflito com Copiar"* do Foundry também cobre atalhos do navegador, como `Ctrl+C`. Esse é um sistema separado; este módulo reporta apenas colisões Foundry-com-Foundry.
 
@@ -75,15 +77,13 @@ Uma tecla à qual duas ou mais ações registradas através de `game.keybindings
 
 ## 📦 Instalação
 
-1. Abra o Foundry VTT e vá em **Módulos Adicionais**.
-2. Clique em **Instalar Módulo**.
-3. Cole a seguinte URL de manifesto no campo **URL do Manifesto**, na parte de baixo:
+Instale pelo navegador de módulos do Foundry VTT — busque por **Undumbify Shortcuts** — ou cole esta URL de manifesto no campo **URL do Manifesto**, na parte de baixo de **Instalar Módulo**:
 
 ```
-https://raw.githubusercontent.com/brunocalado/undumbify-shortcuts/main/module.json
+https://github.com/brunocalado/undumbify-shortcuts/releases/latest/download/module.json
 ```
 
-4. Clique em **Instalar** e depois ative o módulo no seu mundo.
+Depois ative o módulo no seu mundo. O que mudou em cada versão está no [changelog](../CHANGELOG.md).
 
 ---
 
