@@ -24,7 +24,7 @@ Undumbify Shortcuts fills in the missing half. Every conflict tells you the **ac
 - **Search by combination** — click the sidebar field and press any combination. Every action bound to it is listed, matching rows are highlighted, and the rest are dimmed.
 - **Jump to any action** — one click switches to the right category, scrolls to the action, and flashes it.
 - **Per-category conflict counts** — the sidebar nav shows how many actions in each category need attention, and a running total opens the full resolver.
-- **Conflict Overview & resolver** — a standalone window listing every contested combination, who is competing for it, and a **"Keep this one"** button that clears every other claim in a single confirmed step. Opens automatically for anyone whose client starts the world already with a conflict — GM or player alike — with a per-client setting to turn that off.
+- **Conflict Overview & resolver** — a standalone window listing every contested combination, who is competing for it, and a **"Keep this one"** button that clears every other claim in a single confirmed step. Speaks up only for new conflicts: the GM gets the overview, a player only a notification for what the GM's fixes cannot reach, and the GM can mark a deliberate overlap as **Can Coexist** for everyone.
 - **Live sync, on by default** — while enabled, every connected client mirrors whichever bindings the GM has explicitly customized, automatically, on every edit — actions only a player has customized are left alone, so nothing is silently overwritten.
 - **Control profiles** — save named keybinding sets to the module's own persistent storage, so enabling the module in *any* world can bring your controls with it. Activating one applies it immediately, and reaches every connected user too if Sync is on.
 - **Native look** — built entirely on Foundry's own design tokens, so it follows your chosen theme instead of fighting it.
@@ -67,7 +67,7 @@ Click the badge under the sidebar search field (or the window's header control) 
 
 ## ⚠️ What Counts as a Conflict?
 
-Two or more keybindings registered through `game.keybindings.register()` using the **exact same key plus modifiers**. Both editable and package-locked bindings are counted.
+A key press that two or more actions registered through `game.keybindings.register()` would respond to, judged **the way Foundry dispatches it**: reserved modifiers count (an action on Shift + Q collides with core's Descend on Q), GM-only actions are left out on a player's client, and Foundry's own locked bindings (Escape, Delete, Ctrl + A/Z/X/C/V) are left out entirely. The overview shows the actions in the order Foundry runs them.
 
 > **A shared combination is not automatically a bug.** Keybindings only fire in the context they were registered for — on the canvas, inside a text editor, during combat. Two actions can share a combination and never actually collide. The module says so in the window itself, and the note can be dismissed for good.
 

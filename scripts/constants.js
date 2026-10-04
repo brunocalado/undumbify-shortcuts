@@ -38,9 +38,13 @@ export const SETTINGS = {
   syncEnabled: "syncEnabled",
   /** World-scoped: the GM's current bindings, as last published by scripts/sync.js. */
   gmBindings: "gmBindings",
-  /** Client-scoped: whether the Conflict Overview opens on its own when this client has a
-   *  conflict at world start. */
-  autoAlertConflicts: "autoAlertConflicts"
+  /** Client-scoped: whether this client is told about new conflicts at world start. */
+  autoAlertConflicts: "autoAlertConflicts",
+  /** World-scoped: conflicts the GM marked as able to coexist, as `{combo, actionIds}`. */
+  ignoredConflicts: "ignoredConflicts",
+  /** Client-scoped: signatures of the conflicts this client was last told about, so the next
+   *  world start only speaks up for new ones. */
+  seenConflicts: "seenConflicts"
 };
 
 /** Handlebars templates shipped by this module. */

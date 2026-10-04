@@ -8,7 +8,7 @@
 
 import { CONTROLS_CONFIG_ID, MODULE_ID, SETTINGS, TEMPLATES } from "./constants.js";
 import { getConflictGroups } from "./detector.js";
-import { goToAction, refreshControlsConfig } from "./helpers.js";
+import { formatCombo, goToAction, refreshControlsConfig } from "./helpers.js";
 import { startInlineEdit } from "./inline-edit.js";
 import { applyBindingOps, planKeepOnly } from "./resolver.js";
 
@@ -36,7 +36,9 @@ export class ConflictViewer extends HandlebarsApplicationMixin(ApplicationV2) {
       gotoClaim: ConflictViewer.#onGotoClaim,
       keepThis: ConflictViewer.#onKeepThis,
       clearClaim: ConflictViewer.#onClearClaim,
-      rebindClaim: ConflictViewer.#onRebindClaim
+      rebindClaim: ConflictViewer.#onRebindClaim,
+      ignoreGroup: ConflictViewer.#onIgnoreGroup,
+      restoreGroup: ConflictViewer.#onRestoreGroup
     }
   };
 
@@ -52,11 +54,17 @@ export class ConflictViewer extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /** @inheritDoc */
   async _prepareContext(options) {
-    const groups = getConflictGroups();
+    const all = getConflictGroups();
+    const groups = all.filter(group => !group.ignored);
+    const ignored = all.filter(group => group.ignored);
     return {
       ...await super._prepareContext(options),
       groups,
+      ignored,
       count: groups.length,
+      // Writing the ignore list is a world-setting write, so it is the GM's call; players still see
+      // what was accepted and why their count is lower than the raw number of overlaps.
+      canIgnore: game.user.isGM,
       canSync: game.user.isGM,
       syncEnabled: game.settings.get(MODULE_ID, SETTINGS.syncEnabled)
     };
@@ -173,9 +181,8 @@ export class ConflictViewer extends HandlebarsApplicationMixin(ApplicationV2) {
     const group = target.closest(".conflict-group");
     const actionId = claim.dataset.actionId;
     const index = Number(claim.dataset.index);
-    const combo = group.dataset.combo;
 
-    const groupData = getConflictGroups().find(g => g.combo === combo);
+    const groupData = getConflictGroups().find(g => g.combo === group.dataset.combo);
     const action = groupData?.actions.find(a => (a.actionId === actionId) && (a.index === index));
     if ( !action ) return;
 
@@ -183,12 +190,12 @@ export class ConflictViewer extends HandlebarsApplicationMixin(ApplicationV2) {
       window: { title: "Clear Binding" },
       content: `<p>Remove <strong>${foundry.utils.escapeHTML(action.label)}</strong> `
         + `(${foundry.utils.escapeHTML(action.packageTitle)}) from `
-        + `<strong>${foundry.utils.escapeHTML(groupData.comboDisplay)}</strong>?</p>`,
+        + `<strong>${foundry.utils.escapeHTML(formatCombo(action.bindingCombo))}</strong>?</p>`,
       yes: { label: "Remove", icon: "fa-solid fa-trash" }
     });
     if ( !proceed ) return;
 
-    await this.#resolve([{ actionId, combo, binding: null }]);
+    await this.#resolve([{ actionId, combo: action.bindingCombo, binding: null }]);
   }
 
   /**
@@ -198,11 +205,10 @@ export class ConflictViewer extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   static #onRebindClaim(event, target) {
     const claim = target.closest(".claim");
-    const group = target.closest(".conflict-group");
     const controls = claim.querySelector(".claim-controls");
     const actionId = claim.dataset.actionId;
     const index = Number(claim.dataset.index);
-    const combo = group.dataset.combo;
+    const combo = claim.dataset.bindingCombo;
 
     startInlineEdit({
       row: claim,
@@ -211,5 +217,52 @@ export class ConflictViewer extends HandlebarsApplicationMixin(ApplicationV2) {
       onCommit: binding => this.#resolve([{ actionId, combo, binding }]),
       onCancel: () => this.render()
     });
+  }
+
+  /**
+   * Mark a conflict as able to coexist, for every client. A clash with Foundry's own controls
+   * asks first, since that is the case this module exists to catch and the one most likely to be
+   * real; an overlap between packages is usually a deliberate, context-dependent one.
+   * @this {ConflictViewer}
+   * @type {ApplicationClickAction}
+   */
+  static async #onIgnoreGroup(event, target) {
+    const groupData = getConflictGroups().find(g => g.combo === target.closest(".conflict-group").dataset.combo);
+    if ( !groupData || groupData.ignored ) return;
+
+    if ( groupData.tier === "core" ) {
+      const order = groupData.actions
+        .map(a => `<strong>${foundry.utils.escapeHTML(a.label)}</strong> `
+          + `(${foundry.utils.escapeHTML(a.packageTitle)})`);
+      const proceed = await DialogV2.confirm({
+        window: { title: "Ignore Conflict" },
+        content: `<p>On <strong>${foundry.utils.escapeHTML(groupData.comboDisplay)}</strong>, Foundry `
+          + `tries ${game.i18n.getListFormatter().format(order)}, in that order, `
+          + `and only stops when one of them claims the key.</p>`
+          + `<p>Ignore this only if you know they act in different situations. Otherwise one of `
+          + `them fires alongside the other, or never fires at all.</p>`,
+        yes: { label: "Ignore", icon: "fa-solid fa-eye-slash" }
+      });
+      if ( !proceed ) return;
+    }
+
+    const list = game.settings.get(MODULE_ID, SETTINGS.ignoredConflicts);
+    const actionIds = [...new Set(groupData.actions.map(a => a.actionId))].sort();
+    await game.settings.set(MODULE_ID, SETTINGS.ignoredConflicts,
+      [...list, { combo: groupData.combo, actionIds }]);
+  }
+
+  /**
+   * Put an ignored conflict back in the active list, dropping every ignore entry that covers it.
+   * @this {ConflictViewer}
+   * @type {ApplicationClickAction}
+   */
+  static async #onRestoreGroup(event, target) {
+    const groupData = getConflictGroups().find(g => g.combo === target.closest(".conflict-group").dataset.combo);
+    if ( !groupData ) return;
+    const actionIds = groupData.actions.map(a => a.actionId);
+    const list = game.settings.get(MODULE_ID, SETTINGS.ignoredConflicts).filter(entry =>
+      (entry.combo !== groupData.combo) || !actionIds.every(id => entry.actionIds.includes(id)));
+    await game.settings.set(MODULE_ID, SETTINGS.ignoredConflicts, list);
   }
 }

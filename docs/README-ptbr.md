@@ -22,7 +22,7 @@ O Undumbify Shortcuts preenche essa lacuna. Todo conflito mostra a **ação e o 
 - **Busca por combinação** — clique no campo da barra lateral e pressione qualquer combinação. Toda ação vinculada a ela é listada, as linhas correspondentes ficam destacadas e as demais ficam esmaecidas.
 - **Vá direto para qualquer ação** — um clique muda para a categoria certa, rola até a ação e a destaca com um flash.
 - **Contagem de conflitos por categoria** — a barra de navegação lateral mostra quantas ações em cada categoria precisam de atenção, e um total geral abre o resolvedor completo.
-- **Visão Geral de Conflitos & resolvedor** — uma janela independente listando cada combinação disputada, quem está competindo por ela, e um botão **"Manter esta"** que remove todas as outras reivindicações em uma única etapa confirmada. Abre automaticamente para qualquer cliente que iniciar o mundo já com um conflito — mestre ou jogador — com uma opção por cliente para desligar isso.
+- **Visão Geral de Conflitos & resolvedor** — uma janela independente listando cada combinação disputada, quem está competindo por ela, e um botão **"Manter esta"** que remove todas as outras reivindicações em uma única etapa confirmada. Só avisa sobre conflitos novos: o mestre recebe a visão geral, o jogador só uma notificação para o que as correções do mestre não alcançam, e o mestre pode marcar uma sobreposição proposital como **Can Coexist** para todos.
 - **Sincronização ao vivo, ligada por padrão** — enquanto ativa, todo cliente conectado espelha os atalhos que o mestre customizou explicitamente, automaticamente, a cada edição — ações que só um jogador customizou permanecem intocadas, então nada é sobrescrito silenciosamente.
 - **Perfis de controles** — salve conjuntos de atalhos nomeados no armazenamento persistente do próprio módulo, para que ativar o módulo em *qualquer* mundo possa trazer seus controles junto. Ativar um perfil o aplica imediatamente, e alcança todo usuário conectado também, se a Sincronização estiver ligada.
 - **Visual nativo** — construído inteiramente sobre os tokens de design do próprio Foundry, então segue o tema escolhido em vez de brigar com ele.
@@ -65,7 +65,7 @@ Clique no indicador abaixo do campo de busca da barra lateral (ou no controle do
 
 ## ⚠️ O Que Conta Como Conflito?
 
-Dois ou mais atalhos registrados através de `game.keybindings.register()` usando **exatamente a mesma tecla mais modificadores**. Tanto atalhos editáveis quanto travados por pacote são contabilizados.
+Uma tecla à qual duas ou mais ações registradas através de `game.keybindings.register()` responderiam, avaliada **do jeito que o Foundry dispara os atalhos**: modificadores reservados contam (uma ação em Shift + Q colide com o Descer do core no Q), ações só do mestre ficam de fora no cliente do jogador, e os atalhos travados do próprio Foundry (Escape, Delete, Ctrl + A/Z/X/C/V) ficam de fora sempre. A visão geral mostra as ações na ordem em que o Foundry as executa.
 
 > **Uma combinação compartilhada não é automaticamente um bug.** Atalhos só disparam no contexto para o qual foram registrados — no canvas, dentro de um editor de texto, durante o combate. Duas ações podem compartilhar uma combinação e nunca colidir na prática. O módulo avisa isso dentro da própria janela, e o aviso pode ser dispensado permanentemente.
 

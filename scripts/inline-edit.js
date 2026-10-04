@@ -6,7 +6,7 @@
  * it under the terms of the GNU General Public License version 3.
  */
 
-import { getActionsForCombo } from "./detector.js";
+import { getConflictsForBinding } from "./detector.js";
 import { bindingFromEvent, formatCombo, logError, normalizeCombo } from "./helpers.js";
 
 /**
@@ -102,13 +102,14 @@ export function startInlineEdit({ row, controls, target, onCommit, onCancel }) {
 }
 
 /**
- * Say whether a candidate combination is free, and if not, who holds it.
+ * Say whether a candidate combination is free, and if not, who holds it — including actions that
+ * would fire on it through a reserved modifier, which an exact-match lookup misses.
  * @param {HTMLElement} feedback
  * @param {string} combo
  * @param {string} actionId   The action being rebound, which cannot conflict with itself
  */
 export function showFeedback(feedback, combo, actionId) {
-  const taken = getActionsForCombo(combo).filter(action => action.actionId !== actionId);
+  const taken = getConflictsForBinding(actionId, combo);
   if ( taken.length ) {
     const names = taken.map(action => `${action.label} (${action.packageTitle})`);
     feedback.className = "us-feedback us-feedback-conflict";

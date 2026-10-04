@@ -26,6 +26,8 @@ import { normalizeCombo, replaceBinding } from "./helpers.js";
  * Turn "keep this one" into the set of writes it implies.
  * Every *other* editable claim on the combination is removed; the kept action is untouched.
  * Uneditable claims are returned separately — they are the reason a resolution can be partial.
+ * Each op targets the claim's own binding, which differs from the group's press when the clash
+ * comes through a reserved modifier (core's Descend on Q, firing on Shift + Q).
  * @param {{combo: string, actions: Array<object>}} group
  * @param {string} keepActionId
  * @param {number} keepIndex
@@ -41,7 +43,7 @@ export function planKeepOnly(group, keepActionId, keepIndex) {
       locked.push(action);
       continue;
     }
-    ops.push({ actionId: action.actionId, combo: group.combo, binding: null });
+    ops.push({ actionId: action.actionId, combo: action.bindingCombo, binding: null });
   }
 
   return { ops, locked };

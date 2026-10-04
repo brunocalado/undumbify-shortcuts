@@ -1,3 +1,41 @@
+{{#*inline "groupHeader"}}
+<header>
+    <kbd class="us-combo">{{group.comboDisplay}}</kbd>
+    {{#if (eq group.tier "core")}}
+    <span class="us-tier us-tier-core" data-tooltip
+          aria-label="One of these is a Foundry control. Pressing the key runs them in the order shown, and Foundry only stops when one claims it.">Foundry</span>
+    {{else}}
+    <span class="us-tier" data-tooltip
+          aria-label="Only modules or the system. Packages often share a key on purpose, each acting in its own situation.">Packages</span>
+    {{/if}}
+    <span class="group-count">{{group.actions.length}} actions, in run order</span>
+    {{#if canIgnore}}
+    {{#if group.ignored}}
+    <button type="button" class="us-group-toggle" data-action="restoreGroup" data-tooltip
+            aria-label="Treat this as a conflict again">
+        <i class="fa-solid fa-eye" inert></i>
+        <span>Restore</span>
+    </button>
+    {{else}}
+    <button type="button" class="us-group-toggle" data-action="ignoreGroup" data-tooltip
+            aria-label="These act in different situations — stop flagging this for everyone. It comes back if another action joins.">
+        <i class="fa-solid fa-eye-slash" inert></i>
+        <span>Can Coexist</span>
+    </button>
+    {{/if}}
+    {{/if}}
+</header>
+{{/inline}}
+
+{{#*inline "claimInfo"}}
+<span class="us-position">{{action.position}}</span>
+<div class="claim-info">
+    <span class="action-label" data-tooltip aria-label="{{action.actionId}}">{{action.label}}</span>
+    <span class="action-package">{{action.packageTitle}}{{#if action.bindingDisplay}}
+        <span class="us-binding-note">· bound to {{action.bindingDisplay}}, fires with {{action.extraModifiers}} held too</span>{{/if}}</span>
+</div>
+{{/inline}}
+
 <div class="viewer">
     <header class="toolbar">
         {{#if count}}
@@ -37,21 +75,17 @@
         </div>
     </header>
 
+    <div class="conflicts scrollable">
     {{#if count}}
-    <ol class="conflicts scrollable">
+    <ol class="conflict-list">
         {{#each groups as |group|}}
-        <li class="conflict-group" data-combo="{{group.combo}}">
-            <header>
-                <kbd class="us-combo">{{group.comboDisplay}}</kbd>
-                <span class="group-count">{{group.actions.length}} actions</span>
-            </header>
+        <li class="conflict-group tier-{{group.tier}}" data-combo="{{group.combo}}">
+            {{> groupHeader group=group canIgnore=@root.canIgnore}}
             <ul class="claims">
                 {{#each group.actions as |action|}}
-                <li class="claim" data-action-id="{{action.actionId}}" data-index="{{action.index}}">
-                    <div class="claim-info">
-                        <span class="action-label" data-tooltip aria-label="{{action.actionId}}">{{action.label}}</span>
-                        <span class="action-package">{{action.packageTitle}}</span>
-                    </div>
+                <li class="claim" data-action-id="{{action.actionId}}" data-index="{{action.index}}"
+                    data-binding-combo="{{action.bindingCombo}}">
+                    {{> claimInfo action=action}}
                     <div class="claim-controls">
                         <button type="button" data-action="keepThis" data-tooltip
                                 aria-label="Keep this one, removing the other claims on this combination">
@@ -82,7 +116,29 @@
     {{else}}
     <div class="empty">
         <i class="fa-solid fa-circle-check" inert></i>
-        <p>Every keybinding has a combination to itself.</p>
+        <p>No keybinding conflict needs attention.</p>
     </div>
     {{/if}}
+
+    {{#if ignored.length}}
+    <details class="ignored">
+        <summary>
+            <i class="fa-solid fa-eye-slash" inert></i>
+            <span>Ignored — able to coexist ({{ignored.length}})</span>
+        </summary>
+        <ol class="conflict-list">
+            {{#each ignored as |group|}}
+            <li class="conflict-group is-ignored" data-combo="{{group.combo}}">
+                {{> groupHeader group=group canIgnore=@root.canIgnore}}
+                <ul class="claims">
+                    {{#each group.actions as |action|}}
+                    <li class="claim">{{> claimInfo action=action}}</li>
+                    {{/each}}
+                </ul>
+            </li>
+            {{/each}}
+        </ol>
+    </details>
+    {{/if}}
+    </div>
 </div>

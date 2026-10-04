@@ -6,15 +6,15 @@
  * it under the terms of the GNU General Public License version 3.
  */
 
-import { MODULE_ID, SETTINGS, TEMPLATES } from "./constants.js";
+import { CONTROLS_CONFIG_ID, MODULE_ID, SETTINGS, TEMPLATES } from "./constants.js";
 import { ConflictViewer } from "./conflict-viewer.js";
 import { enhanceControlsConfig, teardownControlsConfig } from "./controls-config.js";
-import { countConflicts } from "./detector.js";
+import { countConflicts, getActiveConflictGroups } from "./detector.js";
 import { logError } from "./helpers.js";
 import { InstructionsViewer } from "./instructions-viewer.js";
 import { applyProfile, readProfiles } from "./profiles.js";
 import { ProfileManager } from "./profile-manager.js";
-import { checkSyncOnReady, registerSyncHooks } from "./sync.js";
+import { checkSyncOnReady, isSyncEnabled, registerSyncHooks } from "./sync.js";
 
 Hooks.once("init", () => {
   game.settings.registerMenu(MODULE_ID, SETTINGS.instructions, {
@@ -88,15 +88,35 @@ Hooks.once("init", () => {
   });
 
   game.settings.register(MODULE_ID, SETTINGS.autoAlertConflicts, {
-    name: "Auto-Open Conflict Overview",
-    hint: "When enabled, the Conflict Overview opens on its own as soon as this client detects "
-      + "a keybinding conflict at world start, so a conflicting shortcut gets noticed before it "
-      + "silently fails to fire. Turn it off to only see conflicts when you open the window "
-      + "yourself.",
+    name: "Alert on New Conflicts",
+    hint: "When enabled, a keybinding conflict that was not there last time is flagged as soon as "
+      + "the world starts — the GM gets the Conflict Overview, a player gets a notification for "
+      + "conflicts the GM's fixes cannot reach. Conflicts already flagged once, or marked by the GM "
+      + "as able to coexist, stay quiet.",
     scope: "client",
     config: true,
     type: Boolean,
     default: true
+  });
+
+  // World-scoped so one decision by the GM quiets the same conflict on every client. Stored as an
+  // array rather than an object keyed by signature, since action ids carry dots.
+  game.settings.register(MODULE_ID, SETTINGS.ignoredConflicts, {
+    scope: "world",
+    config: false,
+    type: Array,
+    default: [],
+    onChange: () => {
+      foundry.applications.instances.get(`${MODULE_ID}-conflict-viewer`)?.render();
+      foundry.applications.instances.get(CONTROLS_CONFIG_ID)?.render();
+    }
+  });
+
+  game.settings.register(MODULE_ID, SETTINGS.seenConflicts, {
+    scope: "client",
+    config: false,
+    type: Array,
+    default: []
   });
 
   registerSyncHooks();
@@ -115,15 +135,9 @@ Hooks.once("ready", async () => {
   // mirror gets published from, so it needs to see the *final* post-profile state.
   await checkSyncOnReady();
 
-  // Surface conflicts to whoever has them the moment the world is playable, rather than waiting
-  // for them to notice the sidebar badge — a conflicting shortcut otherwise just quietly fails
-  // to fire until someone happens to open Controls Configuration. Evaluated last so it reflects
-  // whatever the two steps above just changed, not the state from before this session started.
-  // countConflicts() reads game.keybindings.bindings, which is already this client's own set —
-  // GM and player alike only ever see their own conflicts here, never someone else's.
-  if ( game.settings.get(MODULE_ID, SETTINGS.autoAlertConflicts) && countConflicts() ) {
-    new ConflictViewer().render({ force: true });
-  }
+  // Evaluated last so it reflects whatever the two steps above just changed, not the state from
+  // before this session started.
+  await alertNewConflicts();
 });
 
 /**
@@ -150,6 +164,49 @@ async function applyActiveProfileIfNeeded() {
   } catch ( error ) {
     logError("could not auto-apply the active control profile", error);
   }
+}
+
+/**
+ * Flag conflicts this client has not been told about before.
+ *
+ * Only new ones: a conflict seen at the last world start, or one the GM marked as able to coexist,
+ * does not reopen anything — re-announcing the same accepted overlap every session is what made
+ * the alert noise. The GM gets the full Conflict Overview, since resolving is theirs to do and
+ * Sync carries it to everyone. A player only hears about what the GM's fixes cannot reach.
+ * @returns {Promise<void>}
+ */
+async function alertNewConflicts() {
+  if ( !game.settings.get(MODULE_ID, SETTINGS.autoAlertConflicts) ) return;
+
+  const signatures = getActiveConflictGroups().filter(concernsThisClient).map(group => group.signature);
+  const seen = new Set(game.settings.get(MODULE_ID, SETTINGS.seenConflicts));
+  const fresh = signatures.filter(signature => !seen.has(signature));
+  // Replaced, not appended: a conflict resolved since is dropped, so if it ever returns it is new.
+  if ( (seen.size !== signatures.length) || fresh.length ) {
+    await game.settings.set(MODULE_ID, SETTINGS.seenConflicts, signatures);
+  }
+  if ( !fresh.length ) return;
+
+  if ( game.user.isGM ) new ConflictViewer().render({ force: true });
+  else ui.notifications.warn(`Undumbify Shortcuts: ${fresh.length} new keybinding conflict`
+    + `${fresh.length === 1 ? "" : "s"} in your controls. Open Controls Configuration to review.`);
+}
+
+/**
+ * Whether resolving this conflict is up to this client.
+ *
+ * Always for the GM. For a player, only when Sync is off — the GM's fixes stay on the GM's client —
+ * or when one of the actions involved carries a binding the player set themselves rather than one
+ * mirrored from the GM.
+ * @param {{actions: Array<{actionId: string}>}} group
+ * @returns {boolean}
+ */
+function concernsThisClient(group) {
+  if ( game.user.isGM || !isSyncEnabled() ) return true;
+  const own = game.settings.get("core", "keybindings");
+  const mirror = game.settings.get(MODULE_ID, SETTINGS.gmBindings);
+  return group.actions.some(({ actionId }) =>
+    (actionId in own) && !foundry.utils.equals(own[actionId], mirror[actionId]));
 }
 
 /* -------------------------------------------- */

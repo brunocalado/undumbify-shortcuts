@@ -21,6 +21,8 @@ Each row in the panel carries its own controls:
 - **🗑** removes the binding, leaving the action unassigned.
 - **🔒** appears instead when the package locked that binding. Locked bindings still count as conflicts, they just cannot be changed.
 
+The editor checks a candidate the same way Foundry dispatches it: moving an action to **Shift + Q** is reported as taken when core's Descend sits on **Q**, because Descend also fires with Shift held.
+
 Every resolution goes through immediately in Controls Configuration itself — the native key label updates without reopening the window.
 
 ![Controls Configuration with a conflict expanded, naming the competing actions and their packages](modules/undumbify-shortcuts/docs/controls-configuration.webp)
@@ -51,13 +53,26 @@ Every category in the sidebar shows a small warning icon and a count of how many
 
 Under the search field, a badge shows the running total of **contested combinations** — how many distinct key combinations have more than one action claiming them. Click it to open the **Conflict Overview**. When there are no conflicts, the same button turns green instead of disappearing.
 
-The overview is also reachable from the window's header and from **Game Settings** → **Module Settings** → **Undumbify Shortcuts**. If a client starts the world already having a conflict, the Conflict Overview opens for that client automatically — no need to notice the badge first, and a conflicting shortcut gets flagged before it silently fails to fire. This applies to every client, GM and player alike, since each one only ever sees its own conflicts. It can be turned off per client at **Game Settings** → **Configure Settings** → **Auto-Open Conflict Overview** (on by default).
+The overview is also reachable from the window's header and from **Game Settings** → **Module Settings** → **Undumbify Shortcuts**.
+
+When the world starts, a conflict that was not there last time is flagged on its own — but only a new one. A conflict already flagged at a previous start, or one the GM marked as **Can Coexist**, stays quiet; it is still counted in the badge until it is resolved or accepted.
+
+- **The GM** gets the Conflict Overview, since resolving is the GM's job and Sync carries the result to everyone.
+- **A player** gets a short notification instead, and only for conflicts the GM's fixes cannot reach: when Sync is off, or when the conflict involves a binding the player set themselves.
+
+It can be turned off per client at **Game Settings** → **Configure Settings** → **Alert on New Conflicts** (on by default).
 
 ---
 
 ## The Conflict Overview: Resolving Conflicts
 
-The Conflict Overview lists every contested combination as its own group, with every action competing for it named alongside the package that registered it. Each claim carries:
+The Conflict Overview lists every contested key press as its own group, with every action competing for it named alongside the package that registered it.
+
+The actions are numbered in the order Foundry tries them. On a key press Foundry runs the first one, and moves on to the next unless the first one claims the key — so either both fire, only the first one ever fires, or each acts in a different situation. Only the last case is harmless, and only you can tell which one it is.
+
+Each group is tagged **Foundry** when one of the actions is a core control — the case this module exists for, such as Quickdraw and core's Descend both on **Q** — or **Packages** when only modules or the system are involved, which is where most deliberate, situation-dependent overlaps live.
+
+Each claim carries:
 
 - **👑 Keep this one** — clears every other *editable* claim on that combination in one step, after a confirmation naming exactly what will be removed and which locked claims will remain. This is the fastest way to settle a conflict once you know which action should win.
 - **✎ Rebind** — the same inline "press a combination" editor as Controls Configuration.
@@ -65,7 +80,9 @@ The Conflict Overview lists every contested combination as its own group, with e
 - **→** — jumps to the action in Controls Configuration.
 - **🔒** — shown instead of Rebind/Clear when the package has locked that binding. "Keep this one" still works even when the surviving claim is itself locked.
 
-Resolving the last conflict flips the window to "No conflicts detected," and the sidebar badge follows suit.
+Each group also carries **Can Coexist** (GM only). It moves the group into a collapsed **Ignored** section for every client: it stops counting, stops alerting, and stops tinting rows in Controls Configuration. A **Foundry** group asks for confirmation first, spelling out the run order. If another action later joins that key press, the conflict comes back on its own. **Restore** in the Ignored section undoes it.
+
+Resolving the last conflict flips the window to "No keybinding conflict needs attention," and the sidebar badge follows suit.
 
 ![The Conflict Overview listing several contested combinations, each with its competing actions](modules/undumbify-shortcuts/docs/keybinding-conflicts-view.webp)
 
@@ -110,9 +127,13 @@ Persistent storage must be active for saving to work (`persistentStorage` in the
 
 ## What Counts as a Conflict
 
-Two or more keybindings registered through `game.keybindings.register()` using the exact same key plus modifiers. Both editable and package-locked bindings are counted.
+A key press that two or more actions registered through `game.keybindings.register()` would respond to, judged by the same rules Foundry uses to dispatch it:
 
-> A shared combination is not automatically a bug. Keybindings only fire in the context they were registered for — on the canvas, inside a text editor, during combat. Two actions can share a combination and never collide in practice.
+- An action also fires with any of its **reserved modifiers** held. Core's Descend is bound to **Q** but reserves **Shift**, so an action on **Shift + Q** still collides with it.
+- **GM-only** actions never run on a player's client, so they never produce a conflict there.
+- Foundry's own **locked** bindings — Escape, Delete, and Ctrl + A/Z/X/C/V — are left out. Packages extend those keys on purpose, and the core side can never be rebound. Foundry still shows its own ⚠ on the other package's row.
+
+> A shared key press is not automatically a bug. Many actions only act in a certain situation — on the canvas, with a token selected, while their own window is open — and let the key pass otherwise. That is what **Can Coexist** is for.
 
 > Foundry's own warning also covers browser shortcuts such as `Ctrl+C`. That is a separate system; this module reports Foundry-to-Foundry collisions only.
 

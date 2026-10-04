@@ -368,7 +368,7 @@ function buildExpansion(app, element, actionId, combo, others) {
   panel.innerHTML = `
     <p class="us-expansion-heading">
       <span class="us-combo">${foundry.utils.escapeHTML(formatCombo(combo))}</span>
-      is also bound to:
+      is also claimed by:
     </p>
     <ul class="us-conflict-list">
       ${others.map(other => `

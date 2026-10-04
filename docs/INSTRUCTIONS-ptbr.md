@@ -21,6 +21,8 @@ Cada linha no painel carrega seus próprios controles:
 - **🗑** remove o atalho, deixando a ação sem atribuição.
 - **🔒** aparece no lugar quando o pacote travou aquele atalho. Atalhos travados ainda contam como conflitos, só não podem ser alterados.
 
+O editor avalia a combinação candidata do mesmo jeito que o Foundry dispara os atalhos: mover uma ação para **Shift + Q** aparece como ocupado quando o Descer do core está em **Q**, porque o Descer também dispara com Shift pressionado.
+
 Toda resolução é aplicada imediatamente dentro da própria janela Configurar Controles — o rótulo nativo da tecla é atualizado sem precisar reabrir a janela.
 
 ![Configurar Controles com um conflito expandido, nomeando as ações concorrentes e seus pacotes](controls-configuration.webp)
@@ -51,13 +53,26 @@ Cada categoria na barra lateral mostra um pequeno ícone de alerta e uma contage
 
 Abaixo do campo de busca, um indicador mostra o total corrente de **combinações disputadas** — quantas combinações de teclas distintas têm mais de uma ação reivindicando-as. Clique nele para abrir a **Visão Geral de Conflitos**. Quando não há conflitos, o mesmo botão fica verde em vez de desaparecer.
 
-A visão geral também é acessível pelo cabeçalho da janela e por **Configurações do Jogo** → **Configurações de Módulos** → **Undumbify Shortcuts**. Se um cliente iniciar o mundo já com um conflito, a Visão Geral de Conflitos se abre para aquele cliente automaticamente — sem precisar notar o indicador primeiro, e um atalho em conflito é sinalizado antes de simplesmente falhar em disparar silenciosamente. Isso vale para todo cliente, mestre e jogador igualmente, já que cada um só vê os próprios conflitos. Pode ser desligado por cliente em **Configurações do Jogo** → **Configurar Configurações** → **Auto-Open Conflict Overview** (ligado por padrão — o nome da opção aparece em inglês, já que este módulo ainda não tem tradução própria para a interface).
+A visão geral também é acessível pelo cabeçalho da janela e por **Configurações do Jogo** → **Configurações de Módulos** → **Undumbify Shortcuts**.
+
+Quando o mundo inicia, um conflito que não existia da última vez é sinalizado sozinho — mas só um novo. Um conflito já sinalizado num início anterior, ou marcado pelo mestre como **Can Coexist**, fica quieto; ele continua contando no indicador até ser resolvido ou aceito.
+
+- **O mestre** recebe a Visão Geral de Conflitos, já que resolver é trabalho do mestre e a Sincronização leva o resultado a todos.
+- **Um jogador** recebe só uma notificação curta, e apenas para conflitos que as correções do mestre não alcançam: quando a Sincronização está desligada, ou quando o conflito envolve um atalho que o próprio jogador definiu.
+
+Pode ser desligado por cliente em **Configurações do Jogo** → **Configurar Configurações** → **Alert on New Conflicts** (ligado por padrão — o nome da opção aparece em inglês, já que este módulo ainda não tem tradução própria para a interface).
 
 ---
 
 ## A Visão Geral de Conflitos: Resolvendo Conflitos
 
-A Visão Geral de Conflitos lista cada combinação disputada como seu próprio grupo, com toda ação concorrente nomeada junto com o pacote que a registrou. Cada reivindicação carrega:
+A Visão Geral de Conflitos lista cada tecla disputada como seu próprio grupo, com toda ação concorrente nomeada junto com o pacote que a registrou.
+
+As ações são numeradas na ordem em que o Foundry as executa. Ao pressionar a tecla, o Foundry roda a primeira e só passa para a próxima se a primeira não "tomar" a tecla — então ou as duas disparam, ou só a primeira dispara sempre, ou cada uma age numa situação diferente. Só o último caso é inofensivo, e só você sabe qual deles é.
+
+Cada grupo recebe a etiqueta **Foundry** quando uma das ações é um controle do core — o caso para o qual este módulo existe, como o Quickdraw e o Descer do core, ambos no **Q** — ou **Packages** quando só módulos ou o sistema estão envolvidos, que é onde ficam a maioria das sobreposições propositais, que dependem da situação.
+
+Cada reivindicação carrega:
 
 - **👑 Manter esta** — remove toda outra reivindicação *editável* naquela combinação em uma única etapa, após uma confirmação nomeando exatamente o que será removido e quais reivindicações travadas permanecerão. É a forma mais rápida de resolver um conflito quando você já sabe qual ação deve prevalecer.
 - **✎ Rebindar** — o mesmo editor inline "pressione uma combinação" da janela Configurar Controles.
@@ -65,7 +80,9 @@ A Visão Geral de Conflitos lista cada combinação disputada como seu próprio 
 - **→** — pula para a ação em Configurar Controles.
 - **🔒** — aparece no lugar de Rebindar/Limpar quando o pacote travou aquele atalho. "Manter esta" ainda funciona mesmo quando a reivindicação sobrevivente está ela própria travada.
 
-Resolver o último conflito muda a janela para "Nenhum conflito detectado," e o indicador da barra lateral acompanha.
+Cada grupo também tem **Can Coexist** (somente mestre). Ele move o grupo para uma seção recolhida **Ignored**, para todos os clientes: o conflito deixa de contar, de alertar e de destacar linhas em Configurar Controles. Um grupo **Foundry** pede confirmação antes, mostrando a ordem de execução. Se outra ação passar a usar aquela tecla depois, o conflito volta sozinho. **Restore** na seção Ignored desfaz.
+
+Resolver o último conflito muda a janela para "No keybinding conflict needs attention," e o indicador da barra lateral acompanha.
 
 ![A Visão Geral de Conflitos listando várias combinações disputadas, cada uma com suas ações concorrentes](keybinding-conflicts-view.webp)
 
@@ -110,9 +127,13 @@ O armazenamento persistente precisa estar ativo para que salvar funcione (`persi
 
 ## O Que Conta Como Conflito
 
-Dois ou mais atalhos registrados através de `game.keybindings.register()` usando exatamente a mesma tecla mais modificadores. Tanto atalhos editáveis quanto travados por pacote são contabilizados.
+Uma tecla à qual duas ou mais ações registradas através de `game.keybindings.register()` responderiam, avaliada pelas mesmas regras que o Foundry usa para disparar atalhos:
 
-> Uma combinação compartilhada não é automaticamente um bug. Atalhos só disparam no contexto para o qual foram registrados — no canvas, dentro de um editor de texto, durante o combate. Duas ações podem compartilhar uma combinação e nunca colidir na prática.
+- Uma ação também dispara com qualquer um dos seus **modificadores reservados** pressionado. O Descer do core está no **Q** mas reserva o **Shift**, então uma ação em **Shift + Q** ainda colide com ele.
+- Ações **só do mestre** nunca rodam no cliente de um jogador, então nunca geram conflito ali.
+- Os atalhos **travados** do próprio Foundry — Escape, Delete e Ctrl + A/Z/X/C/V — ficam de fora. Pacotes estendem essas teclas de propósito, e o lado do core nunca pode ser alterado. O Foundry continua mostrando o próprio ⚠ na linha do outro pacote.
+
+> Uma tecla compartilhada não é automaticamente um bug. Muitas ações só agem numa situação específica — no canvas, com um token selecionado, com a própria janela aberta — e deixam a tecla passar no resto do tempo. É para isso que serve o **Can Coexist**.
 
 > O próprio aviso do Foundry também cobre atalhos do navegador, como `Ctrl+C`. Esse é um sistema separado; este módulo reporta apenas colisões Foundry-com-Foundry.
 
